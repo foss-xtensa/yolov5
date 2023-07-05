@@ -1,3 +1,14 @@
+## Steps to create YOLOv5 Model with 4D tensors
+Execute following scripts to create the YOLOv5 Model to be compatible with XNNC
+
+```bash
+wget https://github.com/ultralytics/yolov5/releases/download/v7.0/yolov5m.pt # download yolov5 trained weight file
+
+python create_4d_model.py -c models/yolov5m.yaml -w yolov5m.pt -s yolov5m-4d.pt # convert 5D model to 4D with pretrained weights
+
+python export.py --weights yolov5m-4d.pt --include onnx  # export YOLOv5 model to ONNX
+```
+
 <div align="center">
   <p>
     <a href="http://www.ultralytics.com/blog/ultralytics-yolov8-turns-one-a-year-of-breakthroughs-and-innovations" target="_blank">
