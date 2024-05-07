@@ -74,8 +74,7 @@ class Detect(nn.Module):
     stride = None  # strides computed during build
     dynamic = False  # force grid reconstruction
     export = False  # export mode
-    convert4d = True # convert the model to use 4D tensors
-
+    convert4d = True  # convert the model to use 4D tensors
 
     def __init__(self, nc=80, anchors=(), ch=(), inplace=True):  # detection layer
         super().__init__()
@@ -127,9 +126,11 @@ class Detect(nn.Module):
             shape = 1, self.na, ny, nx, 2  # grid shape
         y, x = torch.arange(ny, device=d, dtype=t), torch.arange(nx, device=d, dtype=t)
         yv, xv = torch.meshgrid(y, x, indexing="ij") if torch_1_10 else torch.meshgrid(y, x)  # torch>=0.7 compatibility
-        g = torch.stack((xv,yv),2)
+        g = torch.stack((xv, yv), 2)
         if self.convert4d:
-            grid = torch.stack((xv, yv), 2).view(nx*ny,2).expand(shape) - 0.5  # add grid offset, i.e. y = 2.0 * x - 0.5
+            grid = (
+                torch.stack((xv, yv), 2).view(nx * ny, 2).expand(shape) - 0.5
+            )  # add grid offset, i.e. y = 2.0 * x - 0.5
             anchor_grid = (self.anchors[i] * self.stride[i]).view((1, self.na, 1, 2)).expand(shape)
         else:
             grid = torch.stack((xv, yv), 2).expand(shape) - 0.5  # add grid offset, i.e. y = 2.0 * x - 0.5
@@ -241,7 +242,7 @@ class DetectionModel(BaseModel):
             s = 256  # 2x min stride
             m.inplace = self.inplace
             forward = lambda x: self.forward(x)[0] if isinstance(m, Segment) else self.forward(x)
-            sqrt = lambda x_shape : x_shape[-2] if len(x_shape) == 5 else math.sqrt(x_shape[-2])
+            sqrt = lambda x_shape: x_shape[-2] if len(x_shape) == 5 else math.sqrt(x_shape[-2])
             m.stride = torch.tensor([s / sqrt(x.shape) for x in forward(torch.zeros(1, ch, s, s))])  # forward
             check_anchor_order(m)
             m.anchors /= m.stride.view(-1, 1, 1)
